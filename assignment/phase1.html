@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<!-- saved from url=(0047)http://web.mit.edu/6.005/www/sp14/projects/gb1/ -->
+<html data-ember-extension="1"><head><meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+
+<title>Project: Pingball (Phase 1)</title>
+
+<link href="http://web.mit.edu/6.005/www/sp14/web/handout-style.css" rel="stylesheet">
+</head>
+<body data-ember-extension="1">
+<header>6.005 — Software Construction</header>
+<div class="container"><h1 class="col-sm-10 col-sm-offset-1">Project: Pingball (Phase 1)</h1>
+
+<markdown class="col-sm-10 col-sm-offset-1 converted"><div class="alert alert-danger"><dl>
+<dt>Team contract due</dt>
+<dd>Monday, April 7, 10:00 pm</dd>
+
+<dt>Warmup due</dt>
+<dd>Thursday, April 10, at meeting with TA</dd>
+
+<dt>Specs due</dt>
+<dd>Monday, April 14, 10:00 pm</dd>
+
+<dt>Implementation due</dt>
+<dd>Friday, April 18, 10:00 pm</dd>
+
+<dt>Reflection due</dt>
+<dd>Monday, April 21, 10:00 pm</dd>
+</dl></div><p>This semester’s group project is a pinball construction kit called Pingball.  The original pinball is an arcade game in which the object is to keep a ball moving around in the game, without falling off the bottom of the playing area. The board has various bumpers on it that deflect the ball, and the player controls a set of flippers that can bat at the ball as it falls.</p>
+
+<blockquote>
+  <p><img src="./phase1_files/pinball-gui.png" alt="One possible implementation of Pingball" title=""></p>
+  
+  <p><em>One possible implementation of Pingball.  Your implementation will look different.</em></p>
+</blockquote>
+
+<p>Pingball has several advantages over a traditional pinball machine.  First, multiple people can play it over a network, connected with each other through a server.  Each player has their own pinball board, but balls can leave one player’s board and enter another player’s board, running on a different computer.  Second, the board layout is configurable by file, so that pinball boards may form complicated “<a href="http://en.wikipedia.org/wiki/Rube_Goldberg_machine">Rube Goldberg</a>” contraptions that are intended to be watched rather than played.</p>
+
+<p>The project will be divided into two phases.  </p>
+
+<ul>
+<li>In phase 1, you will build a text-only version of the game with a client-server component that passes balls over the network, but without user interaction.</li>
+<li>In phase 2, you will build an interactive version with a graphical user interface that allows multiple people to play pingball with each other over a network.</li>
+</ul>
+
+<p>This document describes only phase 1.  The purpose of phase 1 is to help you gain more experience with:</p>
+
+<ul>
+<li>Designing, testing, and implementing abstract data types and method specifications</li>
+<li>Working with client-server networking  </li>
+<li>Working with threads and concurrency in a substantial program</li>
+<li>Working in a small group with software engineering techniques like version control, specifications, and unit testing</li>
+</ul>
+
+<h2>Your Team’s Repository</h2>
+
+<p>Clone your team’s Git repository using (all one line):</p><p class="no-markdown"><tt>git clone ssh://<em style="background: #ffa">username</em>@athena.dialup.mit.edu/afs/athena.mit.edu/course/6/6.005/git/sp14/projects/gb1/<em style="background: #ffa">username1</em>-<em style="background: #ffa">username2</em>-<em style="background: #ffa">username3</em>.git pingball-phase1</tt></p><p>where the three Athena usernames are in alphabetical order.</p>
+
+<h2>Tasks</h2>
+
+<p>During the project, lecture and recitation meetings are replaced by team work time.  You can work in the classrooms where we usually meet, where staff will be available to answer your questions.  Your team can also work elsewhere if you choose, but you should use these times to <strong>work together</strong>.</p>
+
+<p>Your team will be assigned a TA mentor who will help you with your design and help you stay on the right track as you implement it. You are required to meet with your TA several days into your project.  Your TA will get in touch with you to set up that meeting.  All team members should attend the meeting.</p>
+
+<p>Other than reflections, all parts of the project should be committed in the repository you share with your teammates. Each commit to the repository should have a comment saying what you changed, as well as who worked on it.  Your TA will be reviewing your git log to see individual contributions. Make sure you commit frequently!</p>
+
+<p>During this project, you will perform the following tasks.</p>
+
+<ul>
+<li><p><strong>Team contracts</strong>. Before you begin, you should write and
+agree to a <a href="http://web.mit.edu/6.005/www/sp14/projects/gb1/teamcontract.html">team contract</a>.</p></li>
+<li><p><strong>Understand the problem</strong>.  Read the <a href="http://web.mit.edu/6.005/www/sp14/projects/gb1/pingball-phase1-spec.html">Pingball specification</a> carefully.  It describes how your pingball game should work in this phase of the project.</p></li>
+<li><p><strong>Warmup</strong>. There is a warmup exercise that your group needs to do, explained below.  It will help you learn how to use the physics engine we provide.  You don’t have to use our provided physics engine, but you do have to do this warmup exercise with it before deciding to go your own way.</p></li>
+<li><p><strong>Design</strong>. You will need to create abstract datatypes for various parts of your system: bumpers, balls, boards, simulator, client, server, and parsers for wire protocol, user commands, and file format.  Your software’s design is perhaps the most important part of the project; a good design will make it simpler to implement and debug your pingball game.  Remember to write specifications for your classes and methods, to define abstraction functions and rep invariants, and to make thread safety arguments.</p></li>
+<li><p><strong>Implementation</strong>. Implement the project in Java. Remember to do test-first programming, and to write checkRep() methods and use assertions.</p></li>
+<li><p><strong>Testing</strong>. Test your entire system on the <a href="http://web.mit.edu/6.005/www/sp14/projects/gb1/boards/">staff sample boards</a>. Furthermore, create at least three additional board files as tests. These should show that your client is able to correctly parse and simulate the various gadgets that can appear on the board, with trigger relationships, and that multiple clients can exchange balls with each other. You should also have JUnit tests that test smaller components of your system, and your test cases should be developed in a principled way (e.g. input space partitioning) justified by a testing strategy described in a comment, as we’ve been doing all along.</p></li>
+<li><p><strong>Reflection</strong>. Individually, you will each write a brief commentary saying what you  learned from this experience.</p>
+
+<ul><li>Reflections on your team.  How did you feel the team did? How well did your team work together? How was the coding? How did you split the work?</li>
+<li>Reflections on yourself.  How do you think you did? What specific contributions did you make? How do you feel about your contributions?</li></ul></li>
+</ul>
+
+<h2>Specification</h2>
+
+<p>The <a href="http://web.mit.edu/6.005/www/sp14/projects/gb1/pingball-phase1-spec.html">Pingball specification</a> describes how the pingball game should work in this phase of the project.</p>
+
+<h2>Provided Code</h2>
+
+<p>We have provided you with a library of physics methods for calculating the dynamics of elastic collisions.
+<a href="http://web.mit.edu/6.005/www/sp14/projects/gb1/physics-doc/">Documentation for the physics package</a> is found online.  Its key features are:</p>
+
+<ul>
+<li>immutable abstract data types such as Angle, Vect, LineSegment, and Circle</li>
+<li>a Geometry class that contains methods to model the physics of elastic collisions between balls and other circles and line segments.</li>
+</ul>
+
+<p>A jar file for physics package is provided in your starting repository.  Source code for the physics package can be found inside the jar file.  You can look at it by browsing into the jar file in Eclipse.  You are welcome to use or not use this code as you please, and to modify it to meet your needs.  While this source is provided in the event that you wish to examine or modify it, we generally discourage you from modifying it.  Spend your energy on other parts of the project.</p>
+
+<h2>Warmup</h2>
+
+<p>In order to get familiar with the physics package and get the hang of the pingball simulation part of the project, you should write a small program that simulates a single ball bouncing around an empty 20L x 20L board.  The ball should have a fixed velocity and reflect off each wall that it collides with.  Don’t simulate friction or gravity.  As the ball bounces around, the board and ball should be printed periodically, in text format, to the console, at 10-20 frames per second.</p>
+
+<p>The <code>main()</code> method of your program should be in the class <code>Main</code> in package <code>warmup</code>, i.e. in the file <code>src/warmup/Main.java</code> in your repo.  You can create other classes in the <code>warmup</code> package that help make it work, like <code>Board</code> or <code>Ball</code>, or you can implement everything inside <code>Main</code>.  The code in <code>warmup</code> will not be part of your final project implementation, you aren’t expected to write specs and tests for your warmup code.  This is practice code for learning about the problem and how to solve it.</p>
+
+<h2>Hints</h2>
+
+<ul>
+<li>For managing time in your pingball simulator, you may want to use some combination of <a href="http://docs.oracle.com/javase/7/docs/api/java/lang/Thread.html#sleep%28long%29">Thread.sleep()</a>, <a href="http://docs.oracle.com/javase/7/docs/api/java/lang/System.html#currentTimeMillis%28%29">System.currentTimeMillis()</a>, or <a href="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Timer.html">java.util.Timer</a>.</li>
+</ul>
+
+<h2>Deliverables and Grading</h2>
+
+<dl>
+<dt>Mon Apr 7, 10pm</dt>
+<dd>Your team contract must be committed to your group repository.  Place it in a file called <code>team-contract.pdf</code> in the top level of your repo, in PDF format.</dd>
+
+<dt>Thu Apr 10</dt>
+<dd>You will have a checkoff meeting with your group’s TA mentor, at which you will need to demonstrate: <strong>(a)</strong> the warmup task, working and committed to your repo in the <code>warmup</code> package; and <strong>(b)</strong> some progress on specifications for your major classes and methods, including a concurrency design (thread safety arguments for your client and server).  You should have committed these specs to your repository as skeleton classes.</dd>
+
+<dt>Mon Apr 14, 10pm</dt>
+<dd>You should have committed <strong>(a)</strong> full specifications for all your classes and methods, and <strong>(b)</strong> some progress on test cases and implementations.</dd>
+
+<dt>Fri Apr 18, 10pm</dt>
+<dd>This is the deadline of the project.  Your implementation should be complete and committed to your group’s repository.</dd>
+
+<dt>Mon Apr 21, 10pm</dt>
+<dd>Individually, you should have uploaded your reflection to Stellar in PDF format.</dd>
+</dl>
+
+<p>Grades will be allotted according to the following breakdown:</p>
+
+<ul>
+<li>Team Contract: 5%</li>
+<li>Design: 25%</li>
+<li>Implementation: 50%</li>
+<li>Testing: 15%</li>
+<li>Reflection: 5%</li>
+</ul>
+
+<p>The three intermediate milestones (team contract, warmup, and specs) will be graded as binary checkoffs, either passed or missed.  Each milestone missed will cost 5 points on the overall project grade.</p>
+
+<h2>Automated Testing</h2>
+
+<p>Starting with Problem Set 0, you have been using the Didit system for automated building and testing: every time you push your commits to Athena, the Didit build server pulls a copy of your code, attempts to compile it, and runs tests.
+This kind of automation is very common in the world of professional software development, and is very useful for coordinating a team of developers.
+There is no ambiguity about whether the code compiles or not: if it doesn’t compile on the build server, it doesn’t compile.
+And there is no ambiguity about whether the tests pass: if they don’t pass on the build server, they don’t pass.</p>
+
+<p>For this project, Didit will run <em>your</em> tests: any JUnit tests you check in to your team’s project repository will be executed and the results included in your Didit build report.
+Tests must be in the <code>src</code> directory with a name like <em>something</em><code>Test.java</code> or <em>something</em><code>Tests.java</code> for Didit to find them.</p>
+
+<p>Your tests will be run in an environment with limited permissions and resources.
+Any deliberate attempts to circumvent these restrictions are a violation of course policy and academic standards, and will be dealt with harshly.
+However:</p>
+
+<ul>
+<li><p>Your code runs with read-only access to your <code>src</code> directory.</p></li>
+<li><p>You may also access directories named <code>boards</code> and <code>resources</code> at the root of your project, if you want a place to commit additional project assets.</p></li>
+<li><p>If you find that Didit is unable to run some of your tests but you think they are reasonable and should be supported, email the TAs and include <strong>“Didit test restrictions”</strong> in the subject line.  Hopefully we will be able to make Didit more accommodating.</p></li>
+<li><p>You may have some tests Didit cannot run.  <em>Don’t let Didit’s restrictions stop you from writing such tests.</em>  Instead, for these tests, include the Javadoc tag <strong><code>@category&nbsp;no_didit</code></strong> on the test class. <em>All tests in that file will be ignored.</em> You cannot use <strong><code>@category&nbsp;no_didit</code></strong> on methods — you must use it on the class.  Here’s an example:</p></li>
+</ul>
+
+<pre><code class="language-java hljs "><span class="hljs-keyword">package</span> pingball;
+<span class="hljs-keyword">import</span> org.junit.Test;
+<span class="hljs-javadoc">/**
+ * Test some super complicated stuff.
+ *<span class="hljs-javadoctag"> @category</span> no_didit
+ */</span>
+<span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">SuperComplicatedTest</span> {</span>
+
+    <span class="hljs-annotation">@Test</span> <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title">testRelativisticVelocities</span>() {
+        <span class="hljs-comment">// Didit will not run this test</span>
+    }
+    <span class="hljs-comment">// nor any other tests in this file</span>
+}</code></pre>
+
+<p>On your build results page, Didit will report which tests it attempted to run, and which tests it skipped.
+Make sure you and your teammates are running those tests manually.</p>
+
+<p>If you include no tests, Didit will count that as a pass — remember to also check whether your code compiled!</p></markdown>
+
+
+</div>
+<footer>MIT EECS</footer>
+<script src="./phase1_files/handout-script.js"></script><script type="text/javascript" src="./phase1_files/jquery.min.js"></script>
+
+
+<script type="text/javascript" src="chrome-extension://bmdblncegkenkacieihfhpjfppoconhi/in-page-script.js"></script><script type="text/javascript" src="./phase1_files/Markdown.Converter.js"></script><script type="text/javascript" src="./phase1_files/Markdown.Extra.js"></script><script type="text/javascript" src="./phase1_files/highlight.pack.js"></script></body></html>

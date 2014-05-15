@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<!-- saved from url=(0072)http://web.mit.edu/6.005/www/sp14/projects/gb2/pingball-phase2-spec.html -->
+<html data-ember-extension="1"><head><meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+
+<title>Pingball Phase 2 Specification</title>
+
+<link href="http://web.mit.edu/6.005/www/sp14/web/handout-style.css" rel="stylesheet">
+</head>
+<body data-ember-extension="1">
+<header>6.005 — Software Construction</header>
+<div class="container"><h1 class="col-sm-10 col-sm-offset-1">Pingball Phase 2 Specification</h1>
+
+<markdown class="col-sm-10 col-sm-offset-1 converted"><h2>Phase 1</h2>
+
+<p>All the requirements of the <a href="http://web.mit.edu/6.005/www/sp14/projects/gb1/pingball-phase1-spec.html">phase 1 specification</a> still apply to phase 2.  If there is any conflict between the phase 1 spec and the phase 2 spec, then the phase 2 spec takes precedence. </p>
+
+<h2>Graphical User Interface</h2>
+
+<p>Your Pingball client should no longer display the running game as text output, but instead as a graphical user interface that pops up in a new window.  The appearance of this window is up to you, but it should:</p>
+
+<ul>
+<li>display the full 20L x 20L board with all its gadgets</li>
+<li>display gadgets using appropriate geometric shapes, e.g. balls should be circles, triangle bumpers should be triangles, etc.</li>
+<li>display shared walls with the connected board’s name</li>
+</ul>
+
+<p>Balls should animate as smoothly as possible.  When a flipper flips, it should be seen to animate smoothly through intermediate positions, at the rotation speed given in the phase 1 specification.</p>
+
+<p>Your graphical user interface should also have commands, represented as buttons or menu items, for the following operations:</p>
+
+<ul>
+<li>loading a board from a file</li>
+<li>connecting to a server by specifying a host and port</li>
+<li>disconnecting from a server</li>
+<li>pausing the game</li>
+<li>resuming the game</li>
+<li>restarting the game from the initial state of the board</li>
+<li>exiting the program</li>
+</ul>
+
+<p>The precise design of this user interface is up to you.</p>
+
+<h2>Keyboard Control</h2>
+
+<p>In addition to gadgets triggering other gadgets (as in phase 1), the user should now be able to trigger gadgets using keyboard keys. In a board file, the new <code>keydown</code> and <code>keyup</code> commands specify that the action of a named gadget is associated with a particular key being pressed or released. For example: </p>
+
+<pre><code>keyup key=space action=Abs
+</code></pre>
+
+<p>specifies that the gadget named <code>Abs</code> should be activated whenever the space bar key is 
+released.</p>
+
+<p>Formally, the file format commands are:</p>
+
+<pre><code>keydown key=KEY action=NAME
+keyup key=KEY action=NAME
+</code></pre>
+
+<p>where</p>
+
+<pre><code>KEY ::=   [a-z] 
+        | [0-9]
+        | shift | ctrl | alt | meta
+        | space
+        | left | right | up | down
+        | minus | equals | backspace
+        | openbracket | closebracket | backslash
+        | semicolon | quote | enter
+        | comma | period | slash
+</code></pre>
+
+<p>These key names correspond to physical keys on the standard keyboard.  We are using a subset that is shared by all three major platforms, Windows, Mac, and Unix.  Because we only need to name physical keys, we don’t have separate names for other characters that share the same physical key (like colon or question mark).  The chosen names closely correspond to the names returned by Java Swing’s <code>KeyEvent.getKeyText()</code> method, which translates an integer key code into a string.  The difference is that the names returned by <code>getKeyText()</code> are capitalized and sometimes contain spaces, e.g. <code>"Back Slash"</code>.  </p>
+
+<p>You can explore the key names returned by <code>getKeyText()</code> for various physical keys on your keyboard using a small test program we provide, <code>KeyNames</code> (<a href="http://web.mit.edu/6.005/www/sp14/projects/gb2/KeyNames/src/KeyNames.java">source</a>, <a href="http://web.mit.edu/6.005/www/sp14/projects/gb2/KeyNames.jar">jar</a>).</p>
+
+<p>Note also that these key names do not distinguish between the left shift key and the right shift key.  Both are treated as the same key.</p>
+
+<p>On Linux platforms, Java Swing has a known bug where holding down a key produces repeated keyPressed/keyReleased events.  You will be able to see this behavior when you run the KeyNames program.  If your platform experiences this problem, you have two workarounds.  One workaround is to turn off automatic key repeat, globally for all programs, using the command <code>xset -r</code>. To reenable autorepeat, use <code>xset r</code>.  The second workaround is to wrap your <code>KeyListener</code> with a class that we provide, <code>MagicKeyListener</code> (<a href="http://web.mit.edu/6.005/www/sp14/projects/gb2/KeyNames/src/MagicKeyListener.java">source</a>).  The <code>KeyNames</code> test program takes an optional command-line argument, <code>--magic</code>, that uses this wrapper class so you can see how the workaround works, and you can look at the source code of KeyNames to see how to use it.</p>
+
+<h2>Client Command Line</h2>
+
+<p>It should now be possible to start the Pingball client with <em>no</em> command-line arguments, not even a board file, because the user can choose a board file and connect to a server using the graphical user interface.  A client started with no arguments should display no board and not connect to a server, but it should display the user interface that allows loading boards, connecting to servers, and exiting.  </p>
+
+<p>So in phase 2, the Pingball client should support these command-line arguments:</p>
+
+<blockquote>
+  <p>Usage:</p>
+
+<pre><code>PingballClient [--host HOST] [--port PORT] [FILE]
+</code></pre>
+</blockquote>
+
+<p>…where HOST, PORT, and FILE are defined as in phase 1.  Note that the FILE argument is now optional.</p>
+
+<h2>New Gadgets</h2>
+
+<p>In addition to the standard gadgets of phase 1, you must also support the following new gadget.</p>
+
+<h3>Portal</h3>
+
+<p>A circular hole with diameter 1L which teleports a ball to another portal gadget, possibly on a different board.</p>
+
+<p>Trigger: generated whenever the ball hits it </p>
+
+<p>Action: none </p>
+
+<p>Coefficient of reflection: not applicable; the ball is teleported </p>
+
+<p>File format commands</p>
+
+<pre><code>portal name=NAME x=INTEGER y=INTEGER otherBoard=NAME otherPortal=NAME
+</code></pre>
+
+<p>This command creates a portal with the given name and coordinates, which we’ll call the <em>source portal</em> for the purpose of this paragraph.  The command also names another portal using <code>otherPortal</code> and (optionally) <code>otherBoard</code>, which we’ll call the <em>target portal</em>.  When a ball collides with the source portal, then the ball is immediately teleported to the target portal, exiting the target portal with the same velocity vector that it entered the source portal.  If the target portal does not exist (e.g. <code>otherPortal</code> is not found on the board, or <code>otherBoard</code> is not currently the name of a board connected to the server), then the ball passes unaffected over the source portal, without teleporting or reflecting.</p>
+
+<p>Portals do not have to be symmetrically connected.  For example:  </p>
+
+<pre><code>portal name=Alpha x=5 y=7 otherPortal=Beta
+portal name=Beta x=15 y=7 otherBoard=Mercury otherPortal=Gamma
+</code></pre>
+
+<p>A ball falling into Alpha will exit from Beta on the same board, but a ball falling into Beta will exit on Gamma on the board named Mercury. </p>
+
+<h2>Your Own New Feature</h2>
+
+<p>Finally, you are expected to extend this specification with at least one new, interesting, significant feature.  Here are some ideas:</p>
+
+<ul>
+<li>a graphical user interface for the server that makes it easier to connect board walls together;</li>
+<li>a ball spawner that makes a new ball when triggered;</li>
+<li>regions of different gravity and friction;</li>
+<li>a square bumper that extends or contracts into a longer rectangle when triggered; </li>
+<li>a graphical user interface for editing boards, i.e. placing balls and gadgets on a grid and saving it as a board file. </li>
+</ul>
+
+<p>Your new feature must be backwards-compatible with this specification.  All boards and server configuration commands that are legal under this specification must continue to work in your final system.</p></markdown>
+
+</div>
+<footer>MIT EECS</footer>
+<script src="./phase2_spec_files/handout-script.js"></script><script type="text/javascript" src="./phase2_spec_files/jquery.min.js"></script>
+
+
+<script type="text/javascript" src="chrome-extension://bmdblncegkenkacieihfhpjfppoconhi/in-page-script.js"></script><script type="text/javascript" src="./phase2_spec_files/Markdown.Converter.js"></script><script type="text/javascript" src="./phase2_spec_files/Markdown.Extra.js"></script></body></html>
